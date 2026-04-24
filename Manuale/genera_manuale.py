@@ -2971,16 +2971,16 @@ def _add_security(pdf: ManualePDF):
         "Da questo pannello e possibile eseguire operazioni avanzate di gestione."
     )
     pdf._code_block(
-        "═══ MENU PRINCIPALE ═══\n"
-        "  [1] Avvia diagnosi pianta\n"
-        "  [2] Fine-tuning modello AI\n"
-        "  [3] Mostra dati sensori correnti\n"
-        "  [4] Esporta dati in Excel\n"
-        "  [5] Visualizza ultime diagnosi\n"
-        "  [6] DELTA Academy\n"
-        "  [7] Pannello Amministratore  🔐   <- Richiede password\n"
-        "  [0] Esci",
-        label="MENU PRINCIPALE",
+        "═══ PANNELLO AMMINISTRATORE ═══\n"
+        "  [1] Cambia password\n"
+        "  [2] Visualizza log\n"
+        "  [3] Statistiche database\n"
+        "  [4] Configurazione sistema\n"
+        "  [5] Backup database\n"
+        "  [6] Reset progressi Academy\n"
+        "  [7] Pubblica su GitHub     <- README, RELEASE, tag, push\n"
+        "  [0] Esci dal pannello",
+        label="PANNELLO AMMINISTRATORE",
     )
     pdf._kv_table([
         ("[1] Cambia password",
@@ -3002,6 +3002,11 @@ def _add_security(pdf: ManualePDF):
         ("[6] Reset Academy",
          "Azzera tutti i progressi, punteggi e badge della DELTA Academy "
          "per l'operatore corrente. Operazione irreversibile."),
+        ("[7] Pubblica su GitHub",
+         "Avvia il wizard di pubblicazione automatica su GitHub. "
+         "Raccoglie metadati dal software, genera README.md e RELEASE.md aggiornati, "
+         "crea un tag git con versione incrementale e fa push su origin/main. "
+         "Vedi sezione 15.6 per i dettagli."),
     ])
 
     pdf._subsection("15.4 Cambio Password")
@@ -3041,6 +3046,175 @@ def _add_security(pdf: ManualePDF):
         "simulazione con dati sintetici, senza bloccare il software.",
         color=GREEN,
     )
+
+def _add_github_publisher(pdf: ManualePDF):
+    """§ 20 — GitHub Publisher: pubblicazione automatica su GitHub."""
+    pdf.add_page()
+    pdf._section_title("20. GITHUB PUBLISHER — PUBBLICAZIONE AUTOMATICA")
+
+    pdf._body(
+        "Il modulo GitHub Publisher (interface/github_publisher.py) consente "
+        "di pubblicare automaticamente DELTA 2.0 su GitHub con un solo click "
+        "dal Pannello Amministratore. Raccoglie in autonomia tutti i metadati "
+        "dal software in esecuzione — versione, modello AI, statistiche operative, "
+        "dipendenze, changelog git — e genera un README.md e un RELEASE.md "
+        "aggiornati, crea un tag git con versione incrementale e fa push su "
+        "origin/main, senza richiedere alcun intervento manuale."
+    )
+
+    pdf._subsection("20.1 Accesso al GitHub Publisher")
+    pdf._body(
+        "Il publisher e accessibile esclusivamente dal Pannello Amministratore "
+        "(richiede password). Dal menu principale selezionare [7] Pannello "
+        "Amministratore, quindi [7] Pubblica su GitHub."
+    )
+    pdf._code_block(
+        "MENU PRINCIPALE\n"
+        "  [7] Pannello Amministratore  <- autenticazione richiesta\n\n"
+        "PANNELLO AMMINISTRATORE\n"
+        "  [7] Pubblica su GitHub\n\n"
+        "GITHUB PUBLISHER\n"
+        "  [1] Pubblicazione completa  (README + RELEASE + tag + push)\n"
+        "  [2] Solo README             (aggiorna README.md senza nuovo tag)\n"
+        "  [3] Anteprima dati          (mostra dati senza modificare nulla)\n"
+        "  [0] Annulla",
+        label="PERCORSO DI ACCESSO",
+    )
+
+    pdf._subsection("20.2 Raccolta Automatica dei Metadati")
+    pdf._body(
+        "Il publisher non richiede alcuna configurazione manuale: "
+        "raccoglie tutto ciò che serve direttamente dal software in esecuzione."
+    )
+    pdf._kv_table([
+        ("Git (branch/remote/tag)",
+         "Branch corrente, URL repository, ultimo tag git, conteggio commit, "
+         "changelog dei commit dall'ultimo tag fino a HEAD."),
+        ("Modello AI (TFLite)",
+         "Classi diagnostiche da models/labels.txt, dimensione file .tflite in KB, "
+         "shape di input (es. 224x224x3), stato operativo del modello."),
+        ("Database SQLite (delta.db)",
+         "Totale diagnosi archiviate, diagnosi reali (non simulate), "
+         "top-5 classi piu frequenti, distribuzione livelli di rischio."),
+        ("requirements.txt",
+         "Lista delle dipendenze Python attive, con versioni fissate."),
+        ("core/config.py",
+         "Parametri chiave: soglia confidenza AI, thread NPU, "
+         "range temperatura/umidita ottimali, qubit Oracle di Grover."),
+    ])
+
+    pdf._subsection("20.3 File Generati Automaticamente")
+    pdf._body(
+        "Dalla raccolta dati vengono prodotti due file Markdown e "
+        "rigenerato il manuale PDF prima del push."
+    )
+    pdf._kv_table([
+        ("README.md",
+         "Descrizione completa del progetto con badge dinamici (versione, "
+         "diagnosi totali, Python, piattaforma), tabella classi diagnostiche, "
+         "sezioni installazione, avvio, statistiche operative, architettura "
+         "moduli, struttura directory e requisiti hardware/software."),
+        ("RELEASE.md",
+         "Note di rilascio con version tag, data, changelog automatico "
+         "estratto da git log (commit dall'ultimo tag), statistiche modello "
+         "e database al momento della pubblicazione."),
+        ("Manuale/DELTA_Manuale_Utente.pdf",
+         "Il manuale PDF viene rigenerato automaticamente prima del push "
+         "tramite Manuale/genera_manuale.py per garantire che sia sempre "
+         "allineato con il codice pubblicato."),
+    ])
+
+    pdf._subsection("20.4 Flusso di Pubblicazione Completa ([1])")
+    pdf._body(
+        "La modalita 'Pubblicazione completa' esegue in sequenza tutte "
+        "le operazioni necessarie per aggiornare il repository GitHub."
+    )
+    pdf._code_block(
+        "1. Raccolta automatica di tutti i metadati dal software\n"
+        "2. Generazione README.md aggiornato\n"
+        "3. Generazione RELEASE.md con changelog\n"
+        "4. Rigenerazione Manuale/DELTA_Manuale_Utente.pdf\n"
+        "5. Richiesta versione  (suggerita automaticamente, es. v2.0.1)\n"
+        "6. Conferma prima del push\n"
+        "7. git add README.md RELEASE.md Manuale/DELTA_Manuale_Utente.pdf\n"
+        "8. git commit -m \"chore(release): <versione>\"\n"
+        "9. git tag <versione>\n"
+        "10. git push origin main --tags",
+        label="FLUSSO PUBBLICAZIONE COMPLETA",
+    )
+
+    pdf._subsection("20.5 Versione Incrementale Automatica")
+    pdf._body(
+        "Se esiste un tag git precedente (es. v2.0.0), il publisher "
+        "suggerisce automaticamente la patch successiva (v2.0.1). "
+        "L'amministratore puo accettare il suggerimento o inserire "
+        "una versione personalizzata."
+    )
+    pdf._kv_table([
+        ("Nessun tag precedente",   "Propone v2.0.0 come versione iniziale"),
+        ("Tag precedente: v2.0.0",  "Propone v2.0.1 (incremento patch)"),
+        ("Tag precedente: v2.1.3",  "Propone v2.1.4 (incremento patch)"),
+        ("Formato accettato",       "vX.Y.Z  (es. v2.0.1, v3.0.0)"),
+    ])
+
+    pdf._subsection("20.6 Modalita 'Solo README' ([2])")
+    pdf._body(
+        "Aggiorna il README.md con i dati piu recenti (statistiche database, "
+        "versione modello, dipendenze) e fa push su origin/main senza creare "
+        "un nuovo tag git. Utile per aggiornare la homepage del repository "
+        "senza incrementare la versione del software."
+    )
+
+    pdf._subsection("20.7 Anteprima Dati ([3])")
+    pdf._body(
+        "Mostra a schermo tutti i dati che verrebbero pubblicati, "
+        "senza scrivere alcun file ne fare push. Utile per verificare "
+        "il contenuto prima della pubblicazione."
+    )
+    pdf._code_block(
+        "─── ANTEPRIMA DATI RACCOLTI ───\n"
+        "Repository:   https://github.com/Proctor81/DELTA-2.0\n"
+        "Branch:       main\n"
+        "Ultimo tag:   v2.0.0  (o 'nessun tag')\n"
+        "Versione sug: v2.0.1\n\n"
+        "Modello AI:   7 classi  |  224x224x3  |  2847 KB\n"
+        "Database:     11 diagnosi totali  |  8 reali\n\n"
+        "Changelog:\n"
+        "  - feat: aggiungi GitHub Publisher nel Pannello Admin\n"
+        "  - fix: pin ai-edge-litert==1.2.0\n"
+        "  ...",
+        label="ESEMPIO ANTEPRIMA",
+    )
+
+    pdf._subsection("20.8 Prerequisiti")
+    pdf._body(
+        "Per il corretto funzionamento del publisher devono essere soddisfatte "
+        "le seguenti condizioni:"
+    )
+    pdf._bullet([
+        "Git configurato: git config user.name e user.email impostati",
+        "Remote 'origin' puntante al repository GitHub ufficiale",
+        "Accesso push autorizzato: SSH key o token GitHub configurati",
+        "Connessione internet attiva al momento del push",
+        "fpdf2 installato (gia incluso in requirements.txt) per rigenerare il PDF",
+    ])
+    pdf._warning_box(
+        "ATTENZIONE — La pubblicazione su GitHub e irreversibile: il tag creato "
+        "e il push effettuato non possono essere annullati dall'interno del software. "
+        "Usare la modalita [3] Anteprima per verificare il contenuto prima di procedere. "
+        "L'operazione [1] Pubblicazione completa richiede una conferma esplicita prima "
+        "di eseguire il push.",
+    )
+
+    pdf._info_box(
+        "AUTOMAZIONE COMPLETA",
+        "Il GitHub Publisher e progettato per eliminare completamente il lavoro "
+        "manuale di aggiornamento della documentazione. Ogni push include README, "
+        "RELEASE e Manuale PDF aggiornati in modo coerente con il software "
+        "effettivamente in esecuzione su Raspberry Pi.",
+        color=GREEN,
+    )
+
 
 def _add_pretrained_model(pdf: ManualePDF):
     """Sezione 19: Modello pre-addestrato PlantVillage — download automatico."""
@@ -3287,8 +3461,9 @@ def main():
         ("17. Installazione automatica Raspberry Pi 5", 32),
         ("18. MLOps — Addestramento e Miglioramento Continuo", 35),
         ("19. Modello Pre-addestrato — Download automatico",    38),
-        ("Appendice Hardware — Assemblaggio e Schema elettrico", 41),
-        ("Appendice Licenza — DELTA 2.0 SOFTWARE LICENSE",       44),
+        ("20. GitHub Publisher — Pubblicazione automatica",     41),
+        ("Appendice Hardware — Assemblaggio e Schema elettrico", 44),
+        ("Appendice Licenza — DELTA 2.0 SOFTWARE LICENSE",       47),
     ]
     pdf.toc_page(toc_entries)
 
@@ -3312,6 +3487,7 @@ def main():
     _add_raspberry_install(pdf)
     _add_mlops_operatore(pdf)
     _add_pretrained_model(pdf)
+    _add_github_publisher(pdf)
     _add_hardware_appendix(pdf)
     _add_electrical_rendering(pdf)
     _add_license_appendix(pdf)
