@@ -1,6 +1,6 @@
-# Release v2.0.1 — 25 April 2026
+# Release v2.0.2 — 25 April 2026
 
-> Generato automaticamente da DELTA il 25/04/2026 00:45
+> Generato automaticamente da DELTA il 25/04/2026 00:46
 
 ## Changelog
 
@@ -13,7 +13,7 @@
 | Classi modello AI | 7 |
 | Dimensione modello | 2675 KB |
 | Branch | `main` |
-| Tag precedente | `v2.0.0` |
+| Tag precedente | `v2.0.1` |
 
 ## Note di installazione
 
