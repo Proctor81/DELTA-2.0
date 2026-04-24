@@ -1,0 +1,15 @@
+{
+  "total_score": 180,
+  "sessions": 3,
+  "quiz_correct": 7,
+  "quiz_total": 10,
+  "sim_correct": 2,
+  "sim_total": 6,
+  "badges": [
+    "Primo Passo — Hai guadagnato i tuoi primi 50 punti!",
+    "Studioso — 5 domande di quiz corrette",
+    "MLOps Base — prima sessione di miglioramento continuo"
+  ],
+  "training_lab_completed": 1,
+  "training_lab_score": 30
+}

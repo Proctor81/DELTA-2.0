@@ -1,0 +1,63 @@
+# DELTA AI Agent - Dipendenze Python
+# Target: Raspberry Pi 5 (16GB) + AI HAT 2+ | Python consigliato: 3.10-3.12
+# Nota: TensorFlow/tflite-runtime potrebbero non avere wheel per Python >=3.13
+# ─────────────────────────────────────────────────────────────
+
+# ── Computer Vision ──────────────────────────────────────────
+opencv-python-headless>=4.8.0
+
+# ── Numerica / Scientifica ──────────────────────────────────
+numpy>=1.24.0
+pandas>=2.0.0
+
+# ── Export Excel ─────────────────────────────────────────────
+openpyxl>=3.1.0
+
+# ── Manuale PDF ───────────────────────────────────────────────
+fpdf2>=2.7.0
+
+# ── Machine Learning (fine-tuning classificatore) ────────────
+scikit-learn>=1.3.0
+
+# ── TFLite Runtime (preferito su Raspberry Pi / edge) ───────
+# Su Raspberry Pi (aarch64, Python 3.12) usare il sostituto ufficiale di tflite-runtime:
+ai-edge-litert
+# Per Edge TPU (AI HAT 2+ / Coral):
+#   https://github.com/google-coral/pycoral
+#
+# NOTA: Python 3.10-3.12 richiesto. Python >= 3.13 non supportato da TF/TFLite.
+
+# ── TensorFlow — Training, Conversione MLOps e Runtime TFLite ──
+# Necessario per: ai/train_keras_classifier.py, ai/convert_keras_to_tflite.py,
+#                 ai/download_pretrained_model.py
+# Su desktop/macOS decommentare:
+# tensorflow>=2.13.0
+
+# ── TensorFlow Datasets — Download dataset PlantVillage ─────
+# Necessario per: ai/download_pretrained_model.py
+# NOTA: protobuf >= 5 (installato con TF 2.20+) richiede il workaround
+#   PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+# Questo workaround è già integrato nello script — nessuna azione manuale.
+# tensorflow-datasets>=4.9.0
+
+# ── Raspberry Pi / Sensori Adafruit ──────────────────────────
+# Decommentare sulla Pi reale:
+# RPi.GPIO>=0.7.1
+# smbus2>=0.4.3
+# adafruit-circuitpython-bme680>=3.3.0
+# adafruit-circuitpython-veml7700>=1.1.0
+# adafruit-circuitpython-scd4x>=1.3.0
+# adafruit-circuitpython-ads1x15>=2.3.0
+# board>=1.0
+# busio>=5.0
+
+# ── Camera ───────────────────────────────────────────────────
+# Decommentare sulla Pi reale:
+# picamera2>=0.3.12
+
+# ── API opzionale ────────────────────────────────────────────
+flask>=3.0.0
+
+# ── Edge TPU / AI HAT 2+ ─────────────────────────────────────
+# Installare seguendo: https://coral.ai/docs/accelerator/get-started/
+# pycoral>=2.0.0

@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Database runtime
+delta.db-shm
+delta.db-wal
+
+# Log
+logs/
+
+# macOS
+.DS_Store
+Icon
+
+# Dataset captures (generati a runtime)
+datasets/captures/
+
+# Credenziali
+data/auth.json
+.venv312/

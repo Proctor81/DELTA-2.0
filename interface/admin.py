@@ -1,0 +1,218 @@
+"""
+DELTA - interface/admin.py
+Pannello Amministratore DELTA — accesso protetto da password.
+Funzionalità: cambio password, log di sistema, statistiche DB,
+configurazione, backup, reset Academy.
+"""
+
+import logging
+import shutil
+from datetime import datetime
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.agent import DeltaAgent
+
+logger = logging.getLogger("delta.interface.admin")
+
+BOLD   = "\033[1m"
+DIM    = "\033[2m"
+GREEN  = "\033[92m"
+RED    = "\033[91m"
+YELLOW = "\033[93m"
+CYAN   = "\033[96m"
+RESET  = "\033[0m"
+
+_ROOT = Path(__file__).resolve().parent.parent
+
+
+class AdminPanel:
+    """Pannello di controllo amministratore DELTA."""
+
+    def __init__(self, agent: "DeltaAgent"):
+        self.agent = agent
+
+    # ── Autenticazione ─────────────────────────────────────────
+
+    def authenticate(self) -> bool:
+        """Richiede e verifica la password di amministratore."""
+        from core.auth import verify_password
+        import getpass
+        print(f"\n{BOLD}─── ACCESSO AMMINISTRATORE ───{RESET}")
+        print(f"{DIM}Inserire la password per continuare.{RESET}")
+        try:
+            pw = getpass.getpass("Password: ")
+        except (KeyboardInterrupt, EOFError):
+            print()
+            return False
+        if verify_password(pw):
+            print(f"{GREEN}✔ Accesso autorizzato.{RESET}")
+            logger.info("Accesso admin riuscito.")
+            return True
+        print(f"{RED}✘ Password errata. Accesso negato.{RESET}")
+        logger.warning("Tentativo di accesso admin FALLITO.")
+        return False
+
+    # ── Menu principale ────────────────────────────────────────
+
+    def run(self):
+        """Avvia il pannello (richiede autenticazione preventiva)."""
+        if not self.authenticate():
+            return
+
+        while True:
+            self._header()
+            print(f"  {BOLD}[1]{RESET} Cambia password amministratore")
+            print(f"  {BOLD}[2]{RESET} Visualizza ultimi log di sistema")
+            print(f"  {BOLD}[3]{RESET} Statistiche database")
+            print(f"  {BOLD}[4]{RESET} Configurazione sistema")
+            print(f"  {BOLD}[5]{RESET} Backup database")
+            print(f"  {BOLD}[6]{RESET} Reset progressi Academy")
+            print(f"  {BOLD}[0]{RESET} Esci dal pannello")
+
+            scelta = input(f"\n{BOLD}> Scelta: {RESET}").strip()
+
+            if scelta == "1":
+                self._change_password()
+            elif scelta == "2":
+                self._view_logs()
+            elif scelta == "3":
+                self._db_stats()
+            elif scelta == "4":
+                self._show_config()
+            elif scelta == "5":
+                self._backup_db()
+            elif scelta == "6":
+                self._reset_academy()
+            elif scelta == "0":
+                print(f"{DIM}Uscita dal pannello amministratore.{RESET}")
+                break
+            else:
+                print(f"⚠ Scelta non valida.")
+
+    # ── Cambio password ────────────────────────────────────────
+
+    def _change_password(self):
+        from core.auth import change_password
+        import getpass
+        print(f"\n{BOLD}─── CAMBIO PASSWORD ───{RESET}")
+        try:
+            old     = getpass.getpass("Password corrente: ")
+            new     = getpass.getpass("Nuova password (min. 8 caratteri): ")
+            confirm = getpass.getpass("Conferma nuova password: ")
+        except (KeyboardInterrupt, EOFError):
+            print()
+            return
+        if new != confirm:
+            print(f"{RED}✘ Le password non coincidono.{RESET}")
+            return
+        ok, msg = change_password(old, new)
+        if ok:
+            print(f"{GREEN}✔ {msg}{RESET}")
+            logger.info("Password amministratore cambiata.")
+        else:
+            print(f"{RED}✘ {msg}{RESET}")
+
+    # ── Log ────────────────────────────────────────────────────
+
+    def _view_logs(self):
+        print(f"\n{BOLD}─── ULTIMI LOG DI SISTEMA (50 righe) ───{RESET}")
+        log_dir = _ROOT / "logs"
+        logs = sorted(log_dir.glob("*.log"), reverse=True) if log_dir.exists() else []
+        if not logs:
+            print(f"{DIM}Nessun file di log trovato in logs/.{RESET}")
+            return
+        lf = logs[0]
+        print(f"{DIM}File: {lf.name}{RESET}\n")
+        try:
+            lines = lf.read_text(encoding="utf-8").splitlines()
+            for line in lines[-50:]:
+                print(line)
+        except Exception as exc:
+            print(f"Errore lettura log: {exc}")
+
+    # ── Statistiche DB ─────────────────────────────────────────
+
+    def _db_stats(self):
+        import sqlite3
+        print(f"\n{BOLD}─── STATISTICHE DATABASE ───{RESET}")
+        db_path = _ROOT / "delta.db"
+        if not db_path.exists():
+            print(f"{DIM}Database non trovato.{RESET}")
+            return
+        try:
+            con = sqlite3.connect(str(db_path))
+            cur = con.cursor()
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            for (tbl,) in cur.fetchall():
+                cur.execute(f"SELECT COUNT(*) FROM [{tbl}]")
+                cnt = cur.fetchone()[0]
+                print(f"  • {tbl:<35} {cnt:>6} record")
+            con.close()
+        except Exception as exc:
+            print(f"Errore accesso DB: {exc}")
+
+    # ── Configurazione ─────────────────────────────────────────
+
+    def _show_config(self):
+        print(f"\n{BOLD}─── CONFIGURAZIONE SISTEMA ───{RESET}")
+        try:
+            from core.config import (
+                MODEL_CONFIG, SENSOR_CONFIG, CAMERA_CONFIG,
+                QUANTUM_CONFIG, API_CONFIG,
+            )
+            sections = {
+                "Modello AI":     MODEL_CONFIG,
+                "Sensori":        SENSOR_CONFIG,
+                "Camera":         CAMERA_CONFIG,
+                "Quantum Oracle": QUANTUM_CONFIG,
+                "API":            API_CONFIG,
+            }
+            for name, cfg in sections.items():
+                print(f"\n  {CYAN}{BOLD}{name}{RESET}")
+                for k, v in cfg.items():
+                    print(f"    {k:<32}: {v}")
+        except Exception as exc:
+            print(f"Errore lettura configurazione: {exc}")
+
+    # ── Backup DB ──────────────────────────────────────────────
+
+    def _backup_db(self):
+        print(f"\n{BOLD}─── BACKUP DATABASE ───{RESET}")
+        db_path = _ROOT / "delta.db"
+        if not db_path.exists():
+            print(f"{DIM}Database non trovato.{RESET}")
+            return
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = _ROOT / "exports"
+        backup_dir.mkdir(exist_ok=True)
+        dest = backup_dir / f"delta_backup_{ts}.db"
+        shutil.copy2(db_path, dest)
+        print(f"{GREEN}✔ Backup salvato: {dest.name}{RESET}")
+        logger.info("Backup DB creato: %s", dest)
+
+    # ── Reset Academy ──────────────────────────────────────────
+
+    def _reset_academy(self):
+        print(f"\n{BOLD}─── RESET PROGRESSI ACADEMY ───{RESET}")
+        confirm = input(
+            f"{YELLOW}⚠ Azzerare tutti i progressi Academy? [s/N]: {RESET}"
+        ).strip().lower()
+        if confirm != "s":
+            print("Operazione annullata.")
+            return
+        pf = _ROOT / "data" / "academy_progress.json"
+        if pf.exists():
+            pf.unlink()
+            print(f"{GREEN}✔ Progressi Academy azzerati.{RESET}")
+            logger.info("Progressi Academy resettati dall'amministratore.")
+        else:
+            print(f"{DIM}Nessun file di progressi trovato.{RESET}")
+
+    # ── Helper ─────────────────────────────────────────────────
+
+    def _header(self):
+        print(f"\n{BOLD}{'═' * 52}{RESET}")
+        print(f"{BOLD}      🔐  DELTA — PANNELLO AMMINISTRATORE{RESET}")
+        print(f"{BOLD}{'═' * 52}{RESET}")
