@@ -4,7 +4,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%205-red?logo=raspberry-pi)
 ![AI](https://img.shields.io/badge/AI-TFLite%20INT8-orange)
 ![License](https://img.shields.io/badge/License-Proprietary-lightgrey)
-![Version](https://img.shields.io/badge/Version-v2.0.3-green)
+![Version](https://img.shields.io/badge/Version-v2.0.4-green)
 
 
 > **DELTA** (Detection and Evaluation of Leaf Troubles and Anomalies)  
@@ -220,4 +220,4 @@ Non è consentita la ridistribuzione o il riutilizzo senza autorizzazione scritt
 
 ---
 
-*README generato automaticamente da DELTA vv2.0.3 — 25/04/2026 00:49*
+*README generato automaticamente da DELTA vv2.0.4 — 25/04/2026 00:56*
