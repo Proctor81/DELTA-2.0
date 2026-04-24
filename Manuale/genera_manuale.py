@@ -766,16 +766,16 @@ def _add_software_uso(pdf: ManualePDF, cfg: dict):
 
     pdf._subsection("5.1 Avvio del sistema")
     pdf._body(
-        "Il modo consigliato per avviare DELTA è tramite il file launcher: "
-        "doppio clic su 'AVVIO DELTA.command' (macOS) oppure eseguire AVVIO_DELTA.py. "
-        "In alternativa è possibile avviare main.py direttamente — il sistema rileva "
-        "automaticamente se si sta usando il Python di sistema e si riavvia con il venv corretto."
+        "Il modo più semplice per avviare DELTA è il comando globale 'delta', "
+        "installato in /usr/local/bin/ durante il setup. Basta aprire un terminale "
+        "e digitare 'delta' da qualsiasi directory. In alternativa è possibile "
+        "avviare AVVIO_DELTA.py direttamente dalla cartella del progetto."
     )
     pdf._code_block(
-        "# Metodo raccomandato (macOS) — doppio clic su:\n"
-        "  AVVIO DELTA.command\n\n"
-        "# Da terminale (tutti i sistemi)\n"
-        "cd ~/DELTA\n"
+        "# Metodo più semplice — da qualsiasi terminale:\n"
+        "delta\n\n"
+        "# Da terminale (percorso completo)\n"
+        "cd ~/Desktop/DELTA\\ 2.0\n"
         "python3 AVVIO_DELTA.py\n\n"
         "# Avvio diretto (auto-rilancio venv se necessario)\n"
         "python3 main.py\n\n"
@@ -783,11 +783,11 @@ def _add_software_uso(pdf: ManualePDF, cfg: dict):
         "source .venv/bin/activate && python main.py"
     )
     pdf._info_box(
-        "AUTO-RILANCIO VENV",
-        "main.py e AVVIO_DELTA.py rilevano automaticamente se vengono eseguiti con "
-        "il Python di sistema (es. /opt/homebrew/bin/python3.12) e si rilanciano "
-        "con il venv del progetto (.venv/bin/python). "
-        "Non è necessario attivare manualmente il venv prima dell'avvio.",
+        "COMANDO GLOBALE 'delta'",
+        "Il comando 'delta' è installato in /usr/local/bin/delta e richiama "
+        "automaticamente AVVIO_DELTA.py dalla cartella del progetto. "
+        "Non è necessario navigare nella directory del progetto né attivare "
+        "manualmente il venv prima dell'avvio.",
         color=GREEN,
     )
 
