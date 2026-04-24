@@ -3055,11 +3055,13 @@ def _add_github_publisher(pdf: ManualePDF):
     pdf._body(
         "Il modulo GitHub Publisher (interface/github_publisher.py) consente "
         "di pubblicare automaticamente DELTA 2.0 su GitHub con un solo click "
-        "dal Pannello Amministratore. Raccoglie in autonomia tutti i metadati "
-        "dal software in esecuzione — versione, modello AI, statistiche operative, "
-        "dipendenze, changelog git — e genera un README.md e un RELEASE.md "
-        "aggiornati, crea un tag git con versione incrementale e fa push su "
-        "origin/main, senza richiedere alcun intervento manuale."
+        "dal Pannello Amministratore. Raccoglie in autonomia i metadati tecnici "
+        "dal software in esecuzione — versione, modello AI, dipendenze, changelog git — "
+        "e genera un README.md e un RELEASE.md aggiornati, crea un tag git con "
+        "versione incrementale e fa push su origin/main, senza richiedere alcun "
+        "intervento manuale. I dati operativi locali (diagnosi, analisi, "
+        "statistiche database) non vengono mai inclusi nei file pubblicati, "
+        "garantendo la piena privacy delle informazioni raccolte in campo."
     )
 
     pdf._subsection("20.1 Accesso al GitHub Publisher")
@@ -3110,14 +3112,14 @@ def _add_github_publisher(pdf: ManualePDF):
     )
     pdf._kv_table([
         ("README.md",
-         "Descrizione completa del progetto con badge dinamici (versione, "
-         "diagnosi totali, Python, piattaforma), tabella classi diagnostiche, "
-         "sezioni installazione, avvio, statistiche operative, architettura "
-         "moduli, struttura directory e requisiti hardware/software."),
+         "Descrizione del progetto con badge tecnici (versione, Python, "
+         "piattaforma), tabella classi diagnostiche, sezioni installazione, "
+         "avvio, architettura moduli, struttura directory, requisiti "
+         "hardware/software e nota privacy. Nessun dato operativo incluso."),
         ("RELEASE.md",
          "Note di rilascio con version tag, data, changelog automatico "
-         "estratto da git log (commit dall'ultimo tag), statistiche modello "
-         "e database al momento della pubblicazione."),
+         "estratto da git log, dimensione modello e numero classi. "
+         "Nessuna statistica del database inclusa."),
         ("Manuale/DELTA_Manuale_Utente.pdf",
          "Il manuale PDF viene rigenerato automaticamente prima del push "
          "tramite Manuale/genera_manuale.py per garantire che sia sempre "
@@ -3159,10 +3161,12 @@ def _add_github_publisher(pdf: ManualePDF):
 
     pdf._subsection("20.6 Modalita 'Solo README' ([2])")
     pdf._body(
-        "Aggiorna il README.md con i dati piu recenti (statistiche database, "
-        "versione modello, dipendenze) e fa push su origin/main senza creare "
-        "un nuovo tag git. Utile per aggiornare la homepage del repository "
-        "senza incrementare la versione del software."
+        "Aggiorna il README.md con i dati tecnici piu recenti "
+        "(classi modello, dipendenze, configurazione) e fa push su "
+        "origin/main senza creare un nuovo tag git. Utile per "
+        "aggiornare la homepage del repository senza incrementare "
+        "la versione del software. Anche in questa modalita nessun "
+        "dato operativo locale viene incluso."
     )
 
     pdf._subsection("20.7 Anteprima Dati ([3])")
@@ -3204,6 +3208,36 @@ def _add_github_publisher(pdf: ManualePDF):
         "Usare la modalita [3] Anteprima per verificare il contenuto prima di procedere. "
         "L'operazione [1] Pubblicazione completa richiede una conferma esplicita prima "
         "di eseguire il push.",
+    )
+
+    pdf._subsection("20.9 Privacy dei Dati")
+    pdf._body(
+        "Il GitHub Publisher e progettato per garantire la piena privacy "
+        "delle informazioni raccolte in campo. Esiste una distinzione netta "
+        "tra dati pubblicati (metadati tecnici del software) e dati che "
+        "rimangono esclusivamente in locale (dati operativi delle analisi)."
+    )
+    pdf._kv_table([
+        ("Pubblicati su GitHub",
+         "Versione software, classi modello AI, shape input, dipendenze, "
+         "parametri di configurazione, changelog git, dimensione modello."),
+        ("Rimangono IN LOCALE",
+         "Diagnosi effettuate, conteggi analisi, top classi rilevate, "
+         "distribuzione livelli di rischio, timestamp diagnosi, "
+         "immagini acquisite, dati sensori raccolti."),
+        ("Visibili solo in [3] Anteprima",
+         "Le statistiche del database sono consultabili a schermo nel terminale "
+         "tramite l'opzione [3] Anteprima, ma non vengono mai scritte "
+         "in nessun file ne trasmesse a servizi esterni."),
+    ])
+    pdf._info_box(
+        "GARANZIA PRIVACY",
+        "Nessun dato agronomico, nessun risultato di analisi e nessuna "
+        "informazione operativa raccolta dal sistema DELTA viene mai "
+        "trasmessa a GitHub o a qualsiasi servizio esterno. "
+        "Il README pubblicato include una nota privacy esplicita "
+        "che dichiara questa garanzia.",
+        color=GREEN,
     )
 
     pdf._info_box(
