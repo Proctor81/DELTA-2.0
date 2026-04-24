@@ -726,21 +726,27 @@ def _add_software_install(pdf: ManualePDF, reqs: list):
 
     pdf._subsection("4.4 Installazione TFLite Runtime")
     pdf._body(
-        "Preferibilmente installare tflite-runtime su Raspberry Pi. Se non disponibile, usare TensorFlow 2.21.0 con flatbuffers 25.12.19 come fallback."
+        "Su Raspberry Pi 5 (aarch64) il runtime raccomandato è ai-edge-litert==1.2.0. "
+        "Versioni >= 1.3.0 causano un segmentation fault durante l'import del runtime nativo su BCM2712. "
+        "Se ai-edge-litert non è disponibile, usare TensorFlow 2.21.0 come fallback."
     )
     pdf._code_block(
-        "# Su Raspberry Pi — runtime leggero (raccomandato)\n"
-        "pip install tflite-runtime\n\n"
-        "# Se tflite-runtime non è disponibile, installare il fallback:\n"
+        "# Su Raspberry Pi 5 (aarch64, Python 3.12) — RACCOMANDATO\n"
+        "pip install ai-edge-litert==1.2.0\n\n"
+        "# NOTA: NON installare versioni >= 1.3.0 su RPi5 — causano segfault (BCM2712)\n"
+        "# pip install ai-edge-litert  <- NON fare questo\n\n"
+        "# Fallback — se ai-edge-litert non è disponibile:\n"
         "pip install tensorflow==2.21.0 flatbuffers==25.12.19\n\n"
         "# Opzione con supporto Edge TPU / AI HAT 2+ (pycoral)\n"
         "# Seguire: https://coral.ai/docs/accelerator/get-started/\n"
         "# pip install pycoral"
     )
     pdf._info_box(
-        "Compatibilità Python runtime AI",
-        "Se pip non trova tensorflow o tflite-runtime, verificare prima la versione di Python. "
-        "Python 3.12 è raccomandato; con Python >= 3.13 le wheel di runtime AI possono essere assenti.",
+        "Compatibilità Python runtime AI — RPi5 aarch64",
+        "Python 3.12 è raccomandato. ai-edge-litert >= 1.3.0 causa segfault su Raspberry Pi 5 "
+        "(SoC BCM2712, aarch64): usare SEMPRE ai-edge-litert==1.2.0. "
+        "tflite-runtime non è disponibile su aarch64/Python 3.12 via pip. "
+        "Con Python >= 3.13 anche le wheel tensorflow sono assenti.",
         color=RED,
     )
 
@@ -877,7 +883,8 @@ def _add_software_uso(pdf: ManualePDF, cfg: dict):
         "Per diagnosi fitosanitarie operative è necessario copiare il file "
         "plant_disease_model.tflite nella cartella models/. "
         "Con runtime AI assente l'avvio resta disponibile in modalità degradata, ma "
-        "il preflight AI continuerà a fallire finché non si installa tensorflow o tflite-runtime.",
+        "il preflight AI continuerà a fallire finché non si installa ai-edge-litert==1.2.0 "
+        "(RPi5 aarch64) o tensorflow (desktop/x86).",
         color=BLUE_MID,
     )
 
@@ -1088,11 +1095,13 @@ def _add_troubleshooting(pdf: ManualePDF):
             ]
         ),
         (
-            "Runtime AI non disponibile (tensorflow/tflite-runtime)",
+            "Runtime AI non disponibile / segfault su RPi5 (tensorflow/ai-edge-litert)",
             [
-                "Controllare la versione Python nel venv: python --version",
-                "Usare Python 3.12: con Python >=3.13 spesso pip non trova wheel tensorflow/tflite-runtime",
-                "Installare runtime: pip install tflite-runtime oppure pip install tensorflow==2.21.0 flatbuffers==25.12.19",
+                "Controllare la versione Python nel venv: python --version (usare Python 3.12)",
+                "Su Raspberry Pi 5 (aarch64): pip install ai-edge-litert==1.2.0",
+                "ATTENZIONE: ai-edge-litert >= 1.3.0 causa segfault su BCM2712 — usare solo la 1.2.0",
+                "tflite-runtime non è disponibile su aarch64/Python 3.12 tramite pip",
+                "Fallback desktop/x86: pip install tensorflow==2.21.0 flatbuffers==25.12.19",
                 "Senza runtime, DELTA avvia in modalità simulata (non bloccante), ma preflight AI fallisce",
             ]
         ),
@@ -2613,7 +2622,7 @@ def _add_raspberry_install(pdf: ManualePDF):
         ("Step 5 — Ambiente virtuale",
          "Crea .venv con --system-site-packages per accedere a picamera2 di sistema."),
         ("Step 6 — Dipendenze Python",
-         "pip install requirements.txt + tflite-runtime + librerie Adafruit."),
+         "pip install -r requirements.txt (include ai-edge-litert==1.2.0) + librerie Adafruit."),
         ("Step 7 — Generazione manuale",
          "Genera automaticamente il PDF del Manuale Utente aggiornato."),
         ("Step 8 — Servizio systemd",
