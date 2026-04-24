@@ -3215,7 +3215,10 @@ def _add_github_publisher(pdf: ManualePDF):
         "Il GitHub Publisher e progettato per garantire la piena privacy "
         "delle informazioni raccolte in campo. Esiste una distinzione netta "
         "tra dati pubblicati (metadati tecnici del software) e dati che "
-        "rimangono esclusivamente in locale (dati operativi delle analisi)."
+        "rimangono esclusivamente in locale (dati operativi delle analisi). "
+        "La protezione e implementata a doppio livello: il publisher non "
+        "include dati operativi nei file generati, e il file .gitignore "
+        "impedisce strutturalmente che i dati locali vengano mai committati."
     )
     pdf._kv_table([
         ("Pubblicati su GitHub",
@@ -3230,13 +3233,42 @@ def _add_github_publisher(pdf: ManualePDF):
          "tramite l'opzione [3] Anteprima, ma non vengono mai scritte "
          "in nessun file ne trasmesse a servizi esterni."),
     ])
+
+    pdf._subsection("20.10 Protezione Strutturale tramite .gitignore")
+    pdf._body(
+        "Oltre alle politiche del publisher, il file .gitignore nella root "
+        "del repository esclude permanentemente dal controllo di versione "
+        "tutti i file che contengono dati operativi locali. "
+        "Questa protezione e attiva a livello git e non dipende dal publisher: "
+        "anche in caso di errore o uso diretto di git add, "
+        "i file elencati non potranno mai essere committati."
+    )
+    pdf._kv_table([
+        ("delta.db",
+         "Database SQLite principale — contiene tutte le diagnosi, "
+         "i campioni di fine-tuning e i log operativi."),
+        ("data/academy_progress.json",
+         "Progressi, punteggi e badge della DELTA Academy "
+         "dell'operatore corrente."),
+        ("exports/",
+         "Cartella con i file Excel esportati (delta_diagnoses.xlsx) "
+         "contenenti lo storico delle diagnosi in formato tabulare."),
+        ("data/auth.json",
+         "Credenziali amministratore (hash PBKDF2-SHA256 + salt). "
+         "Sempre escluso dal repo per ragioni di sicurezza."),
+        ("logs/",
+         "File di log di sistema con timestamp e messaggi di runtime."),
+        ("datasets/captures/",
+         "Immagini acquisite dalla camera durante le sessioni di analisi."),
+    ])
     pdf._info_box(
         "GARANZIA PRIVACY",
         "Nessun dato agronomico, nessun risultato di analisi e nessuna "
         "informazione operativa raccolta dal sistema DELTA viene mai "
         "trasmessa a GitHub o a qualsiasi servizio esterno. "
-        "Il README pubblicato include una nota privacy esplicita "
-        "che dichiara questa garanzia.",
+        "La protezione opera a due livelli indipendenti: "
+        "(1) il publisher genera solo metadati tecnici; "
+        "(2) il .gitignore blocca strutturalmente il commit dei dati locali.",
         color=GREEN,
     )
 
@@ -3377,6 +3409,19 @@ def _add_license_appendix(pdf: "ManualePDF"):
     pdf._section_title("Appendice Licenza — DELTA 2.0 SOFTWARE LICENSE")
 
     pdf._body("Copyright \u00a9 2026 Paolo Ciccolella. All rights reserved.")
+    pdf.ln(2)
+
+    pdf._body(
+        "Il testo integrale della licenza e disponibile nel file LICENSE "
+        "nella directory radice del repository GitHub. "
+        "GitHub visualizza automaticamente la licenza nel pannello "
+        "informativo del progetto."
+    )
+    pdf._code_block(
+        "DELTA-2.0/\n"
+        "  LICENSE   <- testo integrale della licenza",
+        label="POSIZIONE FILE LICENSE",
+    )
     pdf.ln(2)
 
     # 1
