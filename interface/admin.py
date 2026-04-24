@@ -22,6 +22,7 @@ GREEN  = "\033[92m"
 RED    = "\033[91m"
 YELLOW = "\033[93m"
 CYAN   = "\033[96m"
+BLUE   = "\033[94m"
 RESET  = "\033[0m"
 
 _ROOT = Path(__file__).resolve().parent.parent
@@ -69,6 +70,7 @@ class AdminPanel:
             print(f"  {BOLD}[4]{RESET} Configurazione sistema")
             print(f"  {BOLD}[5]{RESET} Backup database")
             print(f"  {BOLD}[6]{RESET} Reset progressi Academy")
+            print(f"  {BOLD}[7]{RESET} {BLUE}Pubblica su GitHub{RESET}     (README, RELEASE, tag, push)")
             print(f"  {BOLD}[0]{RESET} Esci dal pannello")
 
             scelta = input(f"\n{BOLD}> Scelta: {RESET}").strip()
@@ -85,6 +87,8 @@ class AdminPanel:
                 self._backup_db()
             elif scelta == "6":
                 self._reset_academy()
+            elif scelta == "7":
+                self._publish_github()
             elif scelta == "0":
                 print(f"{DIM}Uscita dal pannello amministratore.{RESET}")
                 break
@@ -209,6 +213,23 @@ class AdminPanel:
             logger.info("Progressi Academy resettati dall'amministratore.")
         else:
             print(f"{DIM}Nessun file di progressi trovato.{RESET}")
+
+    # ── Pubblicazione GitHub ────────────────────────────────────
+
+    def _publish_github(self):
+        """Avvia il wizard di pubblicazione automatica su GitHub."""
+        try:
+            from interface.github_publisher import GitHubPublisher
+        except ImportError as exc:
+            print(f"{RED}✘ Modulo github_publisher non disponibile: {exc}{RESET}")
+            logger.error("GitHubPublisher import error: %s", exc)
+            return
+        try:
+            publisher = GitHubPublisher()
+            publisher.run()
+        except Exception as exc:
+            print(f"{RED}✘ Errore durante la pubblicazione: {exc}{RESET}")
+            logger.error("Errore GitHubPublisher.run(): %s", exc, exc_info=True)
 
     # ── Helper ─────────────────────────────────────────────────
 
