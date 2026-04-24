@@ -1,0 +1,91 @@
+DELTA 2.0 SOFTWARE LICENSE
+
+Copyright © 2026 Paolo Ciccolella. All rights reserved.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CORE SYSTEM (PROPRIETARY)
+
+The DELTA 2.0 core system, including but not limited to:
+  • main control software
+  • sensor management system
+  • automation engine
+  • safety and execution modules
+
+is proprietary software.
+
+You are NOT permitted to:
+  • copy, modify, distribute, or reverse engineer the core system
+  • use the core system outside the authorized DELTA ecosystem
+  • remove or alter copyright notices
+
+Any unauthorized use of the core system is strictly prohibited.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2. MODULES / EXTENSIONS (OPEN SOURCE COMPONENTS)
+
+Certain modules, plugins, or SDK components of DELTA 2.0 may be released
+under open-source licenses (such as MIT or Apache 2.0).
+
+These components are clearly marked in their respective directories.
+
+For open-source modules:
+  • you may use, modify, and distribute them
+  • you must respect the license specified in each module
+  • attribution to the original author is required
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3. AI SERVICES AND CLOUD FEATURES
+
+Any AI-related services, cloud APIs, or external model integrations
+(including but not limited to language model processing) are provided as a
+service layer and are NOT part of the open-source components.
+
+These services may:
+  • require authentication
+  • be subject to usage limits
+  • be modified or discontinued at any time
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4. LIABILITY DISCLAIMER
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+The author is not responsible for:
+  • hardware damage
+  • data loss
+  • incorrect automation behavior
+  • misuse of the system
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5. COMMERCIAL USE
+
+Commercial use of the DELTA 2.0 core system requires a separate written
+license agreement with the author.
+
+Open-source modules may be used commercially according to their respective
+licenses.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6. FINAL TERMS
+
+By using any part of DELTA 2.0, you agree to these terms.
+
+Violation of this license may result in termination of usage rights and
+legal action.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+END OF LICENSE
