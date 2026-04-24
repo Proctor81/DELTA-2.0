@@ -73,7 +73,7 @@ def check_dependencies():
     }
     optional = {
         "picamera2": "picamera2",
-        "tflite_runtime": "tflite-runtime",
+        "ai_edge_litert": "ai-edge-litert",
         "RPi": "RPi.GPIO",
         "smbus2": "smbus2",
         "adafruit_bme680": "adafruit-circuitpython-bme680",
@@ -95,6 +95,8 @@ def check_dependencies():
             ok(f"  {pkg}")
         except ImportError:
             warn(f"  non installato: {pkg}")
+        except Exception:
+            warn(f"  errore import: {pkg} (verifica compatibilita' libreria)")
 
     if missing_required:
         error(f"\n{len(missing_required)} dipendenza(e) obbligatoria(e) mancante(i).")
