@@ -102,8 +102,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ "$SCRIPT_DIR" != "$DELTA_DIR" ]]; then
     info "Copia da $SCRIPT_DIR a $DELTA_DIR ..."
-    rsync -a --exclude='.venv' --exclude='__pycache__' \
+    rsync -a --exclude='.venv' --exclude='.venv*' --exclude='__pycache__' \
               --exclude='*.pyc' --exclude='delta.db-shm' --exclude='delta.db-wal' \
+              --exclude='.git' --exclude='*.db' --exclude='exports/' \
               "${SCRIPT_DIR}/" "${DELTA_DIR}/"
     chown -R "${DELTA_USER}:${DELTA_USER}" "${DELTA_DIR}"
 else
@@ -121,9 +122,18 @@ ok "Sorgenti DELTA installati in ${DELTA_DIR}."
 
 # ─── 5. Ambiente virtuale Python ─────────────────────────────────────────────
 header "5/9  Creazione ambiente virtuale Python"
+# NOTA: usa python3.12 esplicitamente — ai-edge-litert==1.2.0 richiede cp312
+#       python3.13+ non è compatibile con il wheel aarch64 di ai-edge-litert 1.2.0
+PYTHON312=$(command -v python3.12 || echo "")
+if [[ -z "$PYTHON312" ]]; then
+    warn "python3.12 non trovato — tentativo installazione ..."
+    apt-get install -y -qq python3.12 python3.12-venv 2>/dev/null || \
+        warn "Impossibile installare python3.12 — il venv verrà creato con python3 default."
+    PYTHON312=$(command -v python3.12 || command -v python3)
+fi
 if [[ ! -d "$VENV_DIR" ]]; then
-    sudo -u "$DELTA_USER" python3 -m venv --system-site-packages "$VENV_DIR"
-    ok "Ambiente virtuale creato: ${VENV_DIR}"
+    sudo -u "$DELTA_USER" "$PYTHON312" -m venv --system-site-packages "$VENV_DIR"
+    ok "Ambiente virtuale creato: ${VENV_DIR} ($(${VENV_DIR}/bin/python --version))"
 else
     ok "Ambiente virtuale già esistente: ${VENV_DIR}"
 fi
@@ -139,14 +149,19 @@ sudo -u "$DELTA_USER" "$VENV_PIP" install --upgrade pip wheel setuptools -q
 sudo -u "$DELTA_USER" "$VENV_PIP" install -r "${DELTA_DIR}/requirements.txt" -q || \
     warn "Alcuni pacchetti potrebbero richiedere installazione manuale."
 
-# TFLite runtime (Raspberry Pi)
-info "Tentativo installazione tflite-runtime ..."
-sudo -u "$DELTA_USER" "$VENV_PIP" install tflite-runtime -q 2>/dev/null || {
-    warn "tflite-runtime non disponibile via pip."
-    warn "Installeremo TensorFlow 2.21.0 come fallback per il runtime TFLite."
-    sudo -u "$DELTA_USER" "$VENV_PIP" install tensorflow==2.21.0 flatbuffers==25.12.19 -q || \
-        warn "installazione fallback TensorFlow fallita — verificare connessione e repository pip."
-}
+# TFLite runtime (Raspberry Pi 5 / aarch64)
+# NOTA: tflite-runtime non è disponibile su aarch64/Python 3.12 via pip.
+#       tensorflow>=2.21.0 causa segfault su BCM2712 (RPi5).
+#       ai-edge-litert==1.2.0 (già in requirements.txt) è il runtime corretto.
+#       Versioni >= 1.3.0 causano segfault su BCM2712 — NON aggiornare.
+info "Runtime TFLite: uso ai-edge-litert==1.2.0 da requirements.txt (già installato)."
+if sudo -u "$DELTA_USER" "$VENV_PYTHON" -c "import ai_edge_litert" 2>/dev/null; then
+    ok "ai-edge-litert operativo."
+else
+    warn "ai-edge-litert non importabile — reinstallazione ..."
+    sudo -u "$DELTA_USER" "$VENV_PIP" install "ai-edge-litert==1.2.0" -q || \
+        warn "Reinstallazione ai-edge-litert fallita — verificare connessione."
+fi
 
 # Adafruit sensor libraries
 info "Installazione librerie sensori Adafruit ..."
@@ -160,7 +175,7 @@ ADAFRUIT_PKGS=(
     "adafruit-blinka"
 )
 sudo -u "$DELTA_USER" "$VENV_PIP" install "${ADAFRUIT_PKGS[@]}" -q 2>/dev/null || \
-    warn "Alcune librerie sensori non installate. Verificare connettività."
+    warn "Alcune librerie sensori non installate. Verificare connettivita'."
 
 # Generazione manuale PDF
 sudo -u "$DELTA_USER" "$VENV_PIP" install fpdf2 -q
