@@ -21,7 +21,8 @@ scikit-learn>=1.3.0
 
 # ── TFLite Runtime (preferito su Raspberry Pi / edge) ───────
 # Su Raspberry Pi (aarch64, Python 3.12) usare il sostituto ufficiale di tflite-runtime:
-ai-edge-litert
+# NOTA: versioni >= 1.3.0 causano segfault su RPi 5 (BCM2712/aarch64) — fissato a 1.2.0
+ai-edge-litert==1.2.0
 # Per Edge TPU (AI HAT 2+ / Coral):
 #   https://github.com/google-coral/pycoral
 #
