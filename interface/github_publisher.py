@@ -5,11 +5,13 @@ Pubblicazione automatica di DELTA 2.0 su GitHub con un solo click.
 
 Raccoglie automaticamente dal software:
   - Versione, descrizione e feature dal codice sorgente
-  - Statistiche database (diagnosi totali, classi rilevate)
   - Ultima versione dei modelli AI (labels, shape)
   - Dipendenze da requirements.txt
   - Changelog dall'ultimo tag git
-  - Stato del preflight AI
+
+NOTA PRIVACY: i dati operativi locali (diagnosi, statistiche DB, timestamps)
+  NON vengono mai inclusi nei file pubblicati su GitHub.
+  Rimangono esclusivamente sull'installazione locale.
 
 Aggiorna (o crea):
   - README.md    — descrizione, funzionalità, installazione, badge
@@ -222,31 +224,31 @@ def _collect_config_summary() -> Dict[str, Any]:
 def _generate_readme(
     git:    Dict[str, Any],
     model:  Dict[str, Any],
-    db:     Dict[str, Any],
     reqs:   List[str],
     cfg:    Dict[str, Any],
     version: str,
 ) -> str:
-    """Genera il contenuto completo del README.md."""
+    """Genera il contenuto del README.md.
+
+    Non include dati operativi locali (diagnosi, statistiche DB):
+    rimangono esclusivamente sull'installazione locale.
+    """
     repo_url  = git.get("repo_url",  "https://github.com/Proctor81/DELTA-2.0")
     owner     = git.get("owner",     "Proctor81")
     repo_name = git.get("repo_name", "DELTA-2.0")
     now       = datetime.now().strftime("%d/%m/%Y %H:%M")
     labels    = model.get("labels", [])
     n_classes = model.get("n_classes", len(labels))
-    shape_str = str(model.get("input_shape", "224×224×3"))
+    shape_str = str(model.get("input_shape", "224\u00d7224\u00d73"))
     size_kb   = model.get("model_size_kb", 0)
-    total_dx  = db.get("total_diagnoses", 0)
-    real_dx   = db.get("real_diagnoses",  0)
 
-    # Badge
+    # Badge — solo metadati tecnici, nessun dato operativo
     badges = (
         f"![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)\n"
         f"![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%205-red?logo=raspberry-pi)\n"
         f"![AI](https://img.shields.io/badge/AI-TFLite%20INT8-orange)\n"
         f"![License](https://img.shields.io/badge/License-Proprietary-lightgrey)\n"
         f"![Version](https://img.shields.io/badge/Version-{version}-green)\n"
-        f"![Diagnosi](https://img.shields.io/badge/Diagnosi%20totali-{total_dx}-informational)\n"
     )
 
     # Sezione classi diagnostiche
@@ -256,16 +258,6 @@ def _generate_readme(
 
     # Dipendenze
     reqs_md = "\n".join(f"- `{r}`" for r in reqs) or "- *(requirements.txt non trovato)*"
-
-    # Statistiche DB
-    top_classes_md = ""
-    for cls, cnt in db.get("top_classes", []):
-        top_classes_md += f"| `{cls}` | {cnt} |\n"
-    if not top_classes_md:
-        top_classes_md = "| *(nessun dato)* | — |\n"
-
-    risks = db.get("overall_risks", {})
-    risks_md = "\n".join(f"| {k or 'N/A'} | {v} |" for k, v in risks.items()) or "| — | — |"
 
     readme = f"""# 🌿 DELTA — AI Agent per la Salute delle Piante
 
@@ -306,6 +298,7 @@ def _generate_readme(
 | **API REST opzionale** | Flask — 7 endpoint per integrazione esterna |
 | **Export Excel** | `.xlsx` aggiornato automaticamente ad ogni diagnosi |
 | **Installazione automatica** | Script Bash + systemd per avvio al boot |
+| **Privacy dati** | Tutte le diagnosi e i dati operativi rimangono esclusivamente in locale |
 
 ---
 
@@ -352,8 +345,8 @@ main.py ──► DeltaAgent
 | SCD41 | CO₂ (ppm) | I2C `0x62` |
 | ADS1115 | pH, EC (ADC 16-bit) | I2C `0x48` |
 
-**Temperatura ottimale:** {cfg.get('temp_optimal', '18–28 °C')}  
-**Umidità ottimale:** {cfg.get('humidity_optimal', '40–70 %')}
+**Temperatura ottimale:** {cfg.get('temp_optimal', '18\u201328 \u00b0C')}  
+**Umidità ottimale:** {cfg.get('humidity_optimal', '40\u201370 %')}
 
 ---
 
@@ -401,30 +394,7 @@ delta
 
 ---
 
-## 📊 Statistiche operative
-
-> *Aggiornate automaticamente — ultima pubblicazione: {now}*
-
-| Metrica | Valore |
-|---|---|
-| Diagnosi totali nel DB | **{total_dx}** |
-| Diagnosi reali (modello AI) | **{real_dx}** |
-| Ultima diagnosi | `{db.get('last_diagnosis', 'N/A')}` |
-
-### Top classi diagnostiche
-
-| Classe | Occorrenze |
-|--------|-----------|
-{top_classes_md}
-### Distribuzione livelli di rischio
-
-| Livello | Diagnosi |
-|---------|---------|
-{risks_md}
-
----
-
-## 📁 Struttura del progetto
+##  Struttura del progetto
 
 ```
 DELTA-2.0/
@@ -487,6 +457,12 @@ Non è consentita la ridistribuzione o il riutilizzo senza autorizzazione scritt
 
 ---
 
+> ⚠️ **Privacy:** tutte le diagnosi, le analisi e i dati operativi raccolti
+> da DELTA rimangono **esclusivamente in locale** sul dispositivo in uso.
+> Nessun dato personale o agronomico viene trasmesso a GitHub o a servizi esterni.
+
+---
+
 *README generato automaticamente da DELTA v{version} — {now}*
 """
     return readme
@@ -501,9 +477,11 @@ def _generate_release_notes(
     changelog: List[str],
     git: Dict[str, Any],
     model: Dict[str, Any],
-    db: Dict[str, Any],
 ) -> str:
-    """Genera RELEASE.md con changelog automatico."""
+    """Genera RELEASE.md con changelog automatico.
+
+    Non include dati operativi locali (diagnosi, statistiche DB).
+    """
     now = datetime.now().strftime("%d/%m/%Y %H:%M")
     commits_md = "\n".join(f"- {c}" for c in changelog) or "- Nessun commit nuovo dall'ultimo tag."
     last_tag = git.get("last_tag", "primo rilascio")
@@ -515,15 +493,14 @@ def _generate_release_notes(
 
 {commits_md}
 
-## Statistiche
+## Informazioni tecniche
 
 | | |
 |---|---|
-| Diagnosi nel DB | {db.get('total_diagnoses', 0)} |
 | Classi modello AI | {model.get('n_classes', 0)} |
 | Dimensione modello | {model.get('model_size_kb', 0)} KB |
 | Branch | `{git.get('branch', 'main')}` |
-| Commit precedente | `{last_tag or 'N/A'}` |
+| Tag precedente | `{last_tag or 'N/A'}` |
 
 ## Note di installazione
 
@@ -634,7 +611,6 @@ class GitHubPublisher:
         readme_content = _generate_readme(
             git=data["git"],
             model=data["model"],
-            db=data["db"],
             reqs=data["reqs"],
             cfg=data["cfg"],
             version=version,
@@ -651,7 +627,6 @@ class GitHubPublisher:
             changelog=changelog,
             git=data["git"],
             model=data["model"],
-            db=data["db"],
         )
         release_path = _ROOT / "RELEASE.md"
         release_path.write_text(release_content, encoding="utf-8")
@@ -699,11 +674,11 @@ class GitHubPublisher:
             self._step("Commit")
             msg = (
                 f"docs: pubblica {version} — README + RELEASE + manuale aggiornati\n\n"
-                f"- README.md generato automaticamente con statistiche operative\n"
+                f"- README.md generato automaticamente (metadati tecnici)\n"
                 f"- RELEASE.md con changelog da git log\n"
-                f"- Manuale PDF rigenerato ({data['model'].get('n_classes', '?')} classi, "
-                f"{data['db'].get('total_diagnoses', 0)} diagnosi nel DB)\n"
-                f"- Pubblicato con DELTA GitHub Publisher"
+                f"- Manuale PDF rigenerato ({data['model'].get('n_classes', '?')} classi)\n"
+                f"- Pubblicato con DELTA GitHub Publisher\n"
+                f"- Dati operativi locali NON inclusi (privacy garantita)"
             )
             result = subprocess.run(
                 ["git", "commit", "-m", msg],
